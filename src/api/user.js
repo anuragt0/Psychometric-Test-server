@@ -50,7 +50,7 @@ router.post("/login-create-password", async (req,res)=>{
             const updatedUser = await User.findOneAndUpdate({mobile: req.body. mobile}, {password: req.body.password}, {new:true});
             user = updatedUser;
         }
-        console.log("user: ", user);
+        // console.log("user: ", user);
         
 
         // generate token - expiry time is 24 hours
@@ -88,7 +88,7 @@ router.post("/check-mobile-registered", async (req,res)=>{
     const phone = req.body.mobile
     try {
         const userDoc = await User.findOne({mobile: phone});
-        console.log(userDoc);
+        // console.log(userDoc);
         if(!userDoc){
             //user not found
             res.status(200).json({success: false, message: "Mobile number not registered"});
