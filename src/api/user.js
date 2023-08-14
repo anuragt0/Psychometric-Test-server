@@ -9,8 +9,9 @@ const Question = require("../mongodb/Models/Question");
 //Register
 //Token must be there before this route is called.
 //Middleware will verify if user has verified there number or logged in.
-//!REGISTER or updating user can be done only single time. 
-router.post("/register", fetchPerson,  async(req,res)=>{
+//!REGISTER or updating user can be done only single time.
+
+router.post("/register-update-user", fetchPerson,  async(req,res)=>{
     //* User is already created in login. We just have to update the user 
 
     const userId = req.mongoID;
@@ -31,22 +32,26 @@ router.post("/register", fetchPerson,  async(req,res)=>{
 });
 
 //LOGIN
-//!Secure the API by using any code to request the APIs.
-router.post("/login", async (req,res)=>{
-    // console.log("login request received");
-    //We only have mobile phone as input.
-    // const passKey = req.headers.passKey;
-    // console.log(passKey);
+// ! Secure the API by using any code to request the APIs.
+// ! IF MOBILE EXISTS UPDATE THE PASSWORD 
+// ! ELSE CREATE USER WITH MOBILE AND PASSWORD
+router.post("/login-create-password", async (req,res)=>{
+  
     try {
         let user = await User.findOne({mobile: req.body.mobile});
 
         if(!user){
             // User is not already registered, so do register
-            const newUser = new User({mobile: req.body.mobile});
-            //save user and response
+            const newUser = new User({mobile: req.body.mobile, password: req.body.password});
             user = await newUser.save();
         }
+        else{
+            // Update the password
+            const updatedUser = await User.findOneAndUpdate({mobile: req.body. mobile}, {password: req.body.password}, {new:true});
+            user = updatedUser;
+        }
         console.log("user: ", user);
+        
 
         // generate token - expiry time is 24 hours
         const data = {
@@ -77,6 +82,50 @@ router.post("/get-user", fetchPerson, async (req,res)=>{
         res.status(500).json({success: false, message: err});
     }
     
+})
+
+router.post("/check-mobile-registered", async (req,res)=>{
+    const phone = req.body.mobile
+    try {
+        const userDoc = await User.findOne({mobile: phone});
+        console.log(userDoc);
+        if(!userDoc){
+            //user not found
+            res.status(200).json({success: false, message: "Mobile number not registered"});
+            return;
+        }
+        res.status(200).json({success: true, message: "Mobile number registered"});
+    } catch (error) {
+        res.status(500).json({success: false, message: err});
+    }
+})
+
+//!Generate token also here
+router.post("/check-password", async(req,res)=>{
+    try{
+        const userDoc = await User.findOne({mobile: req.body.mobile});
+
+        if(userDoc.password === req.body.password){
+            //*GENERATING TOKEN
+            const data = {
+                exp: Math.floor(Date.now() / 1000) + 60*60*24,
+                mongoID: userDoc._id,
+                isAdmin: userDoc.role===2?true:false
+            };
+            const token = jwt.sign(data, process.env.JWT_SECRET);
+
+            res.status(200).json({success:true, message:"Password matched", token})
+            return;
+        }
+        else{
+            res.status(401).json({success:false, message:'Incorrect Password'})
+            return;
+        }
+    }
+    catch(error){
+        res.status(500).json({success: false, message: err});
+    }
+
 })
 
 
