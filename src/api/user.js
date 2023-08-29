@@ -34,9 +34,6 @@ router.post("/register",  async(req,res)=>{
 });
 
 //LOGIN
-// ! Secure the API by using any code to request the APIs.
-// ! IF MOBILE EXISTS UPDATE THE PASSWORD 
-// ! ELSE CREATE USER WITH MOBILE AND PASSWORD
 router.post("/login", async (req,res)=>{
     try {
         const mobile = req.body.mobile;
