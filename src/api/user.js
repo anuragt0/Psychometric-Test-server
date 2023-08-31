@@ -34,6 +34,9 @@ router.post("/register",  async(req,res)=>{
 });
 
 //LOGIN
+// ! Secure the API by using any code to request the APIs.
+// ! IF MOBILE EXISTS UPDATE THE PASSWORD 
+// ! ELSE CREATE USER WITH MOBILE AND PASSWORD
 router.post("/login", async (req,res)=>{
     try {
         const mobile = req.body.mobile;
@@ -135,7 +138,7 @@ router.post("/check-mobile-registered", async (req,res)=>{
         // console.log(userDoc);
         if(!userDoc){
             //user not found
-            res.status(404).json({success: false, message: "Mobile number not registered"});
+            res.status(200).json({success: false, message: "Mobile number not registered"});
             return;
         }
         res.status(200).json({success: true, message: "Mobile number registered"});
