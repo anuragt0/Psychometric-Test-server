@@ -2,7 +2,14 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 
-app.use(cors());
+const corsOptions = {
+    origin: 'https://api.udyamuplift.in', // Only allow requests from your website
+    // origin: 'http://localhost:3000', // Only allow requests from your website
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Enable cookies and authentication headers
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const connectToMongo = require("./src/mongodb/config");
